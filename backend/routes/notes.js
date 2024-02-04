@@ -13,7 +13,6 @@ const noteSchema = zod.object({
   heading: zod.string().min(5),
   description: zod.string(),
 });
-
 router.post("/create", authMiddleware, async (req, res) => {
   const body = req.body;
   const userId = req.userId;
@@ -40,6 +39,16 @@ router.get("/view", authMiddleware, async (req, res) => {
   res.status(200).json({ notes });
 });
 
+router.get("/indvidualNotes", authMiddleware, async (req, res) => {
+  console.log("name");
+  const userId = req.userId;
+  const notes = await Note.findOne({ userId });
+  console.log(notes);
+  const key = req.query.key;
+  if (!notes) return res.status(404).json({ mess: "Notes not found" });
+  res.status(200).json(notes.note[key]);
+});
+
 router.put("/edit", authMiddleware, async (req, res) => {
   const userId = req.userId;
   const key = req.query.key;
@@ -59,7 +68,6 @@ router.put("/edit", authMiddleware, async (req, res) => {
 });
 
 router.delete("/delete", authMiddleware, async (req, res) => {
-  console.log("meh");
   const userId = req.userId;
   const key = req.query.key;
 
