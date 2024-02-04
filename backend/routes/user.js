@@ -28,7 +28,7 @@ router.post("/signup", async (req, res) => {
   const isValid = inputSchema.safeParse({ name, email, password });
   console.log(isValid);
   if (!isValid.success)
-    return res.status(403).json({ mess: "Schema failure!!!" });
+    return res.status(403).json({ mess: "Please check your inputs" });
 
   const existingUser = await User.findOne({ email });
 
@@ -67,9 +67,23 @@ router.post("/signup", async (req, res) => {
   console.log(newNote);
 });
 
+const siginSchema = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(8),
+});
+
 router.post("/signin", async (req, res) => {
+  console.log("benhur");
   const email = req.body.email;
   const password = req.body.password;
+  const isValid = siginSchema.safeParse({ email, password });
+  console.log("name");
+  if (!isValid.success) {
+    console.log(isValid);
+    return res.status(400).json({ mess: "Incorrect inputs" });
+  }
+  console.log("name");
+
   const userExist = await User.findOne({ email });
   if (!userExist) return res.status(404).json({ mess: "User not found" });
   const passwordMatch = await bcrypt.compare(password, userExist.password);
